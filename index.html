@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ryuuh | Desenvolvedor Web & Discord</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    
+    <script src="https://kit.fontawesome.com/b163d76e7b.js" crossorigin="anonymous"></script>
+
+    <style>
+        /* ====================================================
+           === Configurações Globais e Variáveis CSS ===
+           ==================================================== */
+        :root {
+            /* Cores */
+            --cor-fundo: #0a0a10;
+            --cor-texto-principal: #e0e0e0;
+            --cor-texto-secundario: #b0b0b0;
+            --cor-destaque: #00aaff;
+            --cor-destaque-hover: #007bb6;
+            
+            /* Cores do Glassmorphism */
+            --cor-vidro-fundo: rgba(20, 20, 40, 0.4);
+            --cor-vidro-borda: rgba(255, 255, 255, 0.15);
+            
+            /* Sombras e Brilhos */
+            --sombra-padrao: 0 10px 40px rgba(0, 0, 0, 0.6);
+            --brilho-card-hover: 0 0 30px rgba(0, 170, 255, 0.3);
+            --brilho-icone: 0 0 20px rgba(0, 170, 255, 0.5);
+            
+            /* Transições e Animações */
+            --transicao-suave: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            --transicao-botao: 0.3s ease;
+        }
+
+        /* Animações Keyframes */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.95); }
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 rgba(0, 170, 255, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(0, 170, 255, 0.8); }
+        }
+        
+        @keyframes slideInFromLeft {
+            from { transform: translateX(-50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* ====================================================
+           === Reset e Configurações Gerais da Página ===
+           ==================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--cor-texto-principal);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 80px 20px 20px 20px;
+            overflow-x: hidden;
+            background-color: var(--cor-fundo);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            transition: background-image 0.5s ease;
+            position: relative;
+        }
+        
+        /* Imagens de fundo dinâmicas */
+        @media (orientation: portrait) {
+            body { background-image: url('assets/rua.png'); }
+        }
+        
+        @media (orientation: landscape) {
+            body { background-image: url('assets/cidade.png'); }
+        }
+        
+        .background-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(0px);
+            transition: backdrop-filter 1s ease-out;
+            z-index: -1;
+        }
+        
+        body.is-loaded .background-overlay {
+             backdrop-filter: blur(5px);
+        }
+
+        /* ====================================================
+           === Preloader e Mensagem de Carregamento ===
+           ==================================================== */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--cor-fundo);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+        
+        #preloader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--cor-destaque);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-text {
+            font-size: 1.1em;
+            color: var(--cor-texto-secundario);
+            letter-spacing: 1px;
+            animation: fadeIn 1s ease-in-out infinite alternate;
+        }
+
+        /* ====================================================
+           === Navbar (Cabeçalho) ===
+           ==================================================== */
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(10, 10, 20, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--cor-vidro-borda);
+            z-index: 100;
+            opacity: 0;
+            transform: translateY(-100%);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+        
+        body.is-loaded .site-header {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--cor-texto-principal);
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .logo:hover {
+            color: var(--cor-destaque);
+        }
+
+        .logo .fa-bolt {
+            color: var(--cor-destaque);
+            text-shadow: 0 0 10px var(--cor-destaque);
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover .fa-bolt {
+            transform: rotate(-15deg);
+        }
+
+        /* ====================================================
+           === Estilos do Card Principal (Glassmorphism) ===
+           ==================================================== */
+        .content-section {
+            width: 100%;
+            max-width: 480px;
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+
+        .glass-card {
+            padding: 40px 30px;
+            background: var(--cor-vidro-fundo);
+            border-radius: 25px;
+            box-shadow: var(--sombra-padrao);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--cor-vidro-borda);
+            text-align: center;
+            transition: transform var(--transicao-suave), box-shadow var(--transicao-suave);
+            transform: translateY(30px);
+            opacity: 0;
+        }
+        
+        body.is-loaded .glass-card {
+            animation: slideUp 1s forwards cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--sombra-padrao), var(--brilho-card-hover);
+        }
+        
+        .card-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .profile-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 25px;
+            animation: pulse-glow 2.5s infinite;
+            border-radius: 50%;
+        }
+        
+        .profile-icon {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            border: 5px solid var(--cor-destaque);
+            object-fit: cover;
+            box-shadow: 0 0 25px rgba(0, 170, 255, 0.5);
+            transition: transform var(--transicao-suave), border-color var(--transicao-suave), box-shadow var(--transicao-suave);
+        }
+        
+        .profile-icon:hover {
+            transform: scale(1.05) rotate(5deg);
+            border-color: var(--cor-destaque-hover);
+        }
+        
+        .card-title {
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            animation: slideInFromLeft 0.8s ease-out;
+        }
+        
+        .card-subtitle {
+             font-size: 1.1em;
+             font-weight: 500;
+             color: var(--cor-destaque);
+             margin-bottom: 15px;
+             text-shadow: 0 0 5px rgba(0, 170, 255, 0.2);
+        }
+
+        .card-description {
+            color: var(--cor-texto-secundario);
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        
+        /* ====================================================
+           === Estilos de Habilidades e Projetos (Portfólio) ===
+           ==================================================== */
+        .section-header {
+            font-size: 1.8em;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            list-style: none;
+            padding: 0;
+            margin-bottom: 40px;
+        }
+        
+        .skill-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--cor-vidro-borda);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: transform var(--transicao-botao), box-shadow var(--transicao-botao);
+        }
+        
+        .skill-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), var(--brilho-icone);
+        }
+        
+        .skill-item i {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            color: var(--cor-destaque);
+            text-shadow: 0 0 10px rgba(0, 170, 255, 0.5);
+        }
+        
+        .skill-item p {
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        
+        .project-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--cor-vidro-borda);
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4), 0 0 20px rgba(0, 170, 255, 0.3);
+        }
+
+        .project-card h3 {
+            font-size: 1.4em;
+            font-weight: 600;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            color: var(--cor-destaque);
+        }
+        
+        .project-card p {
+            color: var(--cor-texto-secundario);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        /* Estilos do Carrossel */
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .carousel-slide {
+            display: flex;
+            transition: transform 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        
+        .carousel-item {
+            min-width: 100%;
+            position: relative;
+        }
+
+        .carousel-item img {
+            width: 100%;
+            display: block;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+        }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .dot.active {
+            background-color: var(--cor-destaque);
+            transform: scale(1.3);
+        }
+        
+        /* ====================================================
+           === Estilos dos Botões de Ação ===
+           ==================================================== */
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 35px;
+        }
+
+        .action-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 28px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--cor-vidro-borda);
+            border-radius: 50px;
+            color: var(--cor-texto-principal);
+            font-size: 0.9em;
+            font-weight: 500;
+            text-decoration: none;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            transition: all var(--transicao-botao);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .action-button:before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.15), transparent 70%);
+            transform: rotate(45deg);
+            transition: transform var(--transicao-botao);
+            opacity: 0;
+        }
+
+        .action-button:hover:before {
+            transform: rotate(45deg) scale(1.1);
+            opacity: 1;
+        }
+        
+        .action-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), var(--brilho-card-hover);
+            border-color: var(--cor-destaque);
+        }
+        
+        .action-button i { 
+            margin-right: 10px; 
+            font-size: 1.1em;
+            transition: transform var(--transicao-botao);
+        }
+
+        .action-button:hover i {
+            transform: scale(1.1);
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: var(--cor-texto-secundario);
+            font-weight: 400;
+            box-shadow: none;
+        }
+
+        .back-button:hover {
+            transform: translateY(0);
+            background: none;
+            box-shadow: none;
+            color: var(--cor-texto-principal);
+        }
+
+        /* ====================================================
+           === Estilos da Seção de Serviços ===
+           ==================================================== */
+        .services-intro {
+            color: var(--cor-texto-secundario);
+            line-height: 1.6;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .service-category {
+            width: 100%;
+            margin-bottom: 40px;
+            animation: slideUp 1s forwards;
+        }
+        
+        .service-category:nth-child(2) { animation-delay: 0.2s; }
+        .service-category:nth-child(3) { animation-delay: 0.4s; }
+
+        .category-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: var(--cor-destaque);
+            margin-bottom: 20px;
+            text-align: left;
+            position: relative;
+            padding-bottom: 8px;
+        }
+
+        .category-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--cor-destaque);
+            border-radius: 2px;
+        }
+        
+        .service-list {
+            display: grid;
+            gap: 20px;
+            padding: 0;
+            list-style: none;
+            grid-template-columns: 1fr;
+        }
+        
+        .service-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--cor-vidro-borda);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: slideUp 1s forwards;
+            opacity: 0;
+        }
+        
+        .service-list .service-card:nth-child(1) { animation-delay: 0.2s; }
+        .service-list .service-card:nth-child(2) { animation-delay: 0.4s; }
+        .service-list .service-card:nth-child(3) { animation-delay: 0.6s; }
+        .service-list .service-card:nth-child(4) { animation-delay: 0.8s; }
+        .service-list .service-card:nth-child(5) { animation-delay: 1.0s; }
+        .service-list .service-card:nth-child(6) { animation-delay: 1.2s; }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--cor-destaque);
+            box-shadow: var(--sombra-padrao);
+        }
+        
+        .service-card .icon-container {
+            margin-bottom: 15px;
+            color: var(--cor-destaque);
+            font-size: 2.5em;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: rgba(0, 170, 255, 0.1);
+            box-shadow: var(--brilho-icone);
+            transition: transform 0.3s ease;
+        }
+        
+        .service-card h3 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--cor-texto-principal);
+        }
+        
+        .service-card p {
+            font-size: 0.9em;
+            color: var(--cor-texto-secundario);
+            line-height: 1.6;
+        }
+        
+        .service-card.large {
+            grid-column: 1 / -1;
+            align-items: center;
+            text-align: center;
+            background: rgba(0, 170, 255, 0.05);
+            border-color: var(--cor-destaque);
+            box-shadow: var(--sombra-padrao), 0 0 20px rgba(0, 170, 255, 0.2);
+            padding: 30px;
+        }
+        
+        .service-card.large .icon-container {
+            background: rgba(0, 170, 255, 0.15);
+            box-shadow: 0 0 20px rgba(0, 170, 255, 0.8);
+            font-size: 3em;
+            width: 60px;
+            height: 60px;
+        }
+        
+        .service-card.large h3 {
+            font-size: 1.5em;
+        }
+        
+        .service-card.large:hover {
+             box-shadow: var(--sombra-padrao), 0 0 25px rgba(0, 170, 255, 0.6);
+        }
+        
+        .service-card.large .action-button {
+            margin-top: 20px;
+            padding: 14px 30px;
+            background: var(--cor-destaque);
+            color: var(--cor-fundo);
+            font-weight: 600;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 170, 255, 0.6);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .service-card.large .action-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 170, 255, 1);
+        }
+
+        .service-card.large .action-button i {
+            color: var(--cor-fundo);
+        }
+
+        /* ====================================================
+           === Estilos da Seção de Termos (Accordion) ===
+           ==================================================== */
+        .terms-intro {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--cor-texto-secundario);
+            line-height: 1.6;
+        }
+
+        .terms-accordion {
+            width: 100%;
+            text-align: left;
+        }
+
+        .accordion-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--cor-vidro-borda);
+            border-radius: 15px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: background 0.3s ease;
+        }
+        
+        .accordion-item:hover {
+             background: rgba(255, 255, 255, 0.08);
+        }
+
+        .accordion-header {
+            padding: 18px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1em;
+            font-weight: 500;
+            color: var(--cor-texto-principal);
+        }
+
+        .accordion-header i.fa-chevron-down {
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .accordion-item.active .accordion-header i.fa-chevron-down {
+            transform: rotate(180deg);
+        }
+        
+        .accordion-header .term-icon {
+            margin-right: 15px;
+            color: var(--cor-destaque);
+            font-size: 1.2em;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), padding 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            color: var(--cor-texto-secundario);
+            font-size: 0.95em;
+            line-height: 1.7;
+        }
+        
+        .accordion-item.active .accordion-content {
+            max-height: 500px;
+            padding: 0px 20px 20px 20px;
+        }
+
+        .accordion-content p {
+            margin-bottom: 1em;
+        }
+        
+        .accordion-content p:last-child {
+             margin-bottom: 0;
+        }
+        
+        .accordion-content strong {
+            color: var(--cor-texto-principal);
+            font-weight: 600;
+        }
+
+        /* ====================================================
+           === Rodapé e Links Sociais ===
+           ==================================================== */
+        .site-footer {
+            width: 100%;
+            max-width: 480px;
+            margin-top: 30px;
+            padding: 20px;
+            font-size: 0.9em;
+            color: var(--cor-texto-secundario);
+            text-align: center;
+            border-top: 1px solid var(--cor-vidro-borda);
+            opacity: 0.6;
+        }
+
+        .social-links {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        .social-links a {
+            color: var(--cor-texto-secundario);
+            font-size: 1.6em;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--cor-destaque);
+            transform: translateY(-3px) scale(1.1);
+        }
+
+        /* ====================================================
+           === Responsividade ===
+           ==================================================== */
+        @media (max-width: 480px) {
+            body { padding: 70px 15px 15px 15px; }
+            .site-header { padding: 12px 20px; }
+            .logo { font-size: 1.3em; }
+            .glass-card { padding: 30px 20px; }
+            .profile-icon { width: 100px; height: 100px; }
+            .profile-container { animation: none; box-shadow: none; }
+            .card-title { font-size: 1.8em; }
+            .card-description { font-size: 0.95em; }
+            .button-container { flex-direction: column; align-items: center; gap: 12px; }
+            .action-button { width: 90%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="preloader">
+        <div class="spinner"></div>
+        <p class="loading-text">Carregando...</p>
+    </div>
+
+    <audio id="background-audio" loop>
+        <source src="assets/audio.mp3" type="audio/mpeg">
+        Seu navegador não suporta a tag de áudio.
+    </audio>
+
+    <audio id="click-sound" src="assets/click.mp3" preload="auto"></audio>
+
+    <div class="background-overlay"></div>
+
+    <header class="site-header">
+        <a href="#" data-target="home-section" class="logo">
+            <i class="fas fa-bolt"></i>
+            <span>Ryuh</span>
+        </a>
+    </header>
+
+    <main id="home-section" class="content-section active">
+        <div class="glass-card">
+            <div class="card-header">
+                <div class="profile-container">
+                    <img src="assets/ryuh.png" alt="Foto de Ryuh" class="profile-icon">
+                </div>
+                <h1 class="card-title">Olá, sou Ryuh</h1>
+                <p class="card-description">
+                    Sou um desenvolvedor apaixonado por criar experiências digitais incríveis. Especialista em sites, bots, APIs e na gestão de comunidades Discord.
+                </p>
+            </div>
+    
+            <div class="button-container">
+                <a href="#" data-target="portfolio-section" class="action-button"><i class="fas fa-briefcase"></i> Portfólio</a>
+                <a href="#" data-target="services-section" class="action-button"><i class="fas fa-cogs"></i> Serviços</a>
+                <a href="https://discord.gg/EwQ7R6kw" target="_blank" class="action-button"><i class="fab fa-discord"></i> Contato</a>
+                <a href="#" data-target="terms-section" class="action-button"><i class="fas fa-file-contract"></i> Termos</a>
+            </div>
+        </div>
+    </main>
+
+    <section id="portfolio-section" class="content-section">
+        <div class="glass-card">
+            <div class="card-header">
+                <div class="profile-container">
+                    <img src="assets/augusto.png" alt="Foto de Augusto" class="profile-icon">
+                </div>
+                <h1 class="card-title">Ryuuh Developer</h1>
+                <p class="card-description">
+                    Minha jornada de 4 anos com Discord me permitiu criar e gerenciar projetos complexos, incluindo sites, APIs, bots e servidores.
+                </p>
+            </div>
+            
+            <h2 class="section-header">Habilidades</h2>
+            <ul class="skills-grid">
+                <li class="skill-item"><i class="fa-brands fa-js-square"></i><p>JavaScript</p></li>
+                <li class="skill-item"><i class="fa-brands fa-html5"></i><p>HTML & CSS</p></li>
+                <li class="skill-item"><i class="fa-solid fa-database"></i><p>Banco de Dados</p></li>
+                <li class="skill-item"><i class="fa-brands fa-discord"></i><p>Discord.js</p></li>
+            </ul>
+
+            <h2 class="section-header">Meus Projetos</h2>
+            
+            <div class="project-card">
+                <h3>Nexus Web</h3>
+                <div class="carousel-container">
+                    <div class="carousel-slide">
+                        <div class="carousel-item"><img src="assets/Nexus.png" alt="Banner do Projeto Nexus 1"></div>
+                        <div class="carousel-item"><img src="assets/Nexus1.png" alt="Banner do Projeto Nexus 2"></div>
+                        <div class="carousel-item"><img src="assets/Nexus2.png" alt="Banner do Projeto Nexus 3"></div>
+                    </div>
+                    <div class="carousel-dots"></div>
+                </div>
+                <p>
+                    <strong>Nexus Web</strong> é um website de jogos completo com um sistema de login avançado. Criado para a comunidade, ele hospeda jogos de Nintendo Switch e PC.
+                </p>
+            </div>
+
+            <div class="project-card">
+                <h3>Silksong Mobile Modding</h3>
+                <img src="assets/silksong.png" alt="Banner do Projeto Silksong Mobile Modding" style="width: 100%; border-radius: 12px; margin-top: 10px;">
+                <p>
+                    Um servidor dedicado à comunidade de Hollow Knight: Silksong, onde atuo como administrador. Focamos em discussões e mods para a versão mobile.
+                </p>
+                <div class="button-container" style="margin-top: 15px;">
+                     <a href="https://discord.gg/VNJAxNxq7B" target="_blank" class="action-button"><i class="fab fa-discord"></i> Servidor</a>
+                </div>
+            </div>
+            
+            <div class="project-card">
+                <h3>Golden Academy</h3>
+                <img src="assets/Golden.png" alt="Banner do Projeto Golden Academy" style="width: 100%; border-radius: 12px; margin-top: 10px;">
+                <p>
+                    Atuo como administrador em uma comunidade incrível de emulação. Oferecemos suporte para emuladores de PC e Nintendo Switch.
+                </p>
+                <div class="button-container" style="margin-top: 15px;">
+                     <a href="https://discord.gg/hynY6wWwu2" target="_blank" class="action-button"><i class="fab fa-discord"></i> Servidor</a>
+                </div>
+            </div>
+
+            <div class="button-container">
+                <a href="#" data-target="home-section" class="action-button back-button"><i class="fas fa-arrow-left"></i> Voltar ao Início</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="services-section" class="content-section">
+        <div class="glass-card">
+            <i class="fa-solid fa-cogs fa-duotone" style="font-size: 3em; color: var(--cor-destaque); margin-bottom: 20px;"></i>
+            <h1 class="card-title">Catálogo de Serviços</h1>
+            <p class="services-intro">
+                Soluções digitais de alta qualidade para impulsionar a sua presença online e a comunidade do seu projeto.
+            </p>
+
+            <div class="service-category">
+                <h2 class="category-title">Desenvolvimento de Bots</h2>
+                <div class="service-list">
+                    <div class="service-card">
+                        <div class="icon-container"><i class="fa-solid fa-shield-halved fa-duotone"></i></div>
+                        <h3>Moderação Avançada</h3>
+                        <p>Bots com sistemas de moderação completos, incluindo comandos de banimento, kick, e alertas inteligentes para manter sua comunidade segura e organizada.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="icon-container"><i class="fa-solid fa-star fa-duotone"></i></div>
+                        <h3>Sistema de Níveis</h3>
+                        <p>Engaje seus membros com um sistema de níveis e XP customizável, recompensas exclusivas, placares e reconhecimento para os mais ativos.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="icon-container"><i class="fa-solid fa-code fa-duotone"></i></div>
+                        <h3>Funcionalidades Customizadas</h3>
+                        <p>Desenvolvemos qualquer funcionalidade que você precisar, desde utilitários específicos até jogos interativos e integrações de API no Discord.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="service-category">
+                <h2 class="category-title">Configuração de Servidores</h2>
+                <div class="service-list">
+                    <div class="service-card">
+                        <div class="icon-container"><i class="fa-solid fa-sitemap fa-duotone"></i></div>
+                        <h3>Estrutura e Cargos</h3>
+                        <p>Planejamos e configuramos canais, categorias e a hierarquia de cargos para um servidor otimizado, com base nas melhores práticas do Discord.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="icon-container"><i class="fa-solid fa-paint-brush fa-duotone"></i></div>
+                        <h3>Design e Temática</h3>
+                        <p>Criamos um visual único para seu servidor, com emojis personalizados, banners, e uma temática visual que reflete a identidade da sua marca ou comunidade.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="icon-container"><i class="fa-solid fa-screwdriver-wrench fa-duotone"></i></div>
+                        <h3>Automação e Bots</h3>
+                        <p>Integramos e configuramos bots essenciais como AutoMod, sistemas de tickets, logs e outras automações avançadas para gerenciar a comunidade sem esforço.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="service-category">
+                <h2 class="category-title">Soluções Web</h2>
+                <div class="service-list">
+                    <div class="service-card large">
+                        <div class="icon-container"><i class="fa-solid fa-globe fa-duotone"></i></div>
+                        <h3>Websites e APIs Sob Medida</h3>
+                        <p>Desenvolvimento de websites profissionais, Landing Pages de alta conversão, Sites Institucionais e APIs RESTful. Cada projeto é único e construído para atender às suas necessidades.</p>
+                        <p>O preço é **negociável** e varia de acordo com a complexidade e o escopo do projeto.</p>
+                        <a href="https://discord.gg/SfEjmQvK" target="_blank" class="action-button"><i class="fab fa-discord"></i> Solicitar Orçamento</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-container">
+                <a href="#" data-target="home-section" class="action-button back-button"><i class="fas fa-arrow-left"></i> Voltar ao Início</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="terms-section" class="content-section">
+        <div class="glass-card">
+            <i class="fa-solid fa-file-signature" style="font-size: 2.5em; color: var(--cor-destaque); margin-bottom: 20px;"></i>
+            <h1 class="card-title">Termos e Condições</h1>
+            <p class="terms-intro">
+                Ao contratar nossos serviços, você confirma que leu, compreendeu e concorda em se vincular aos seguintes termos.
+            </p>
+
+            <div class="terms-accordion">
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <div><i class="fa-solid fa-handshake term-icon"></i> Acordo e Escopo do Projeto</div>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Qualquer funcionalidade ou alteração não descrita no escopo inicial do projeto estará sujeita a uma nova negociação e possíveis cobranças adicionais. Todas as solicitações de alteração devem ser formalizadas por escrito para garantir clareza e registro para ambas as partes.</p>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <div><i class="fa-solid fa-wallet term-icon"></i> Orçamento e Pagamento</div>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <p><strong>Sinal de Início:</strong> Um pagamento de 50% do valor total acordado é necessário para iniciar o desenvolvimento. Este valor assegura o agendamento do projeto e cobre os custos iniciais.</p>
+                        <p><strong>Pagamento Final:</strong> Os 50% restantes devem ser pagos na entrega do projeto finalizado e aprovado. A entrega dos arquivos finais ou a publicação do projeto ocorrerá somente após a confirmação do pagamento final.</p>
+                        <p><strong>Não Reembolsável:</strong> Pagamentos realizados não são reembolsáveis após o início efetivo do trabalho, pois os recursos e o tempo já foram alocados para o projeto.</p>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <div><i class="fa-solid fa-hourglass-half term-icon"></i> Prazos e Entrega</div>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Os prazos de entrega fornecidos são estimativas e podem variar dependendo da complexidade do projeto, da agilidade na comunicação do cliente (feedbacks, envio de materiais) e de solicitações de alteração no escopo. Manterei comunicação constante e transparente sobre o progresso e quaisquer ajustes no cronograma.</p>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <div><i class="fa-solid fa-tools term-icon"></i> Suporte e Manutenção</div>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <p><strong>Suporte Gratuito:</strong> Ofereço um período de 30 dias de suporte gratuito para correção de bugs ou problemas técnicos diretamente relacionados ao escopo original, contados a partir da entrega final.</p>
+                        <p><strong>Manutenção Contínua:</strong> Serviços de manutenção contínua, atualizações ou adição de novas funcionalidades não estão inclusos e podem ser contratados separadamente através de um novo acordo.</p>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <div><i class="fa-solid fa-lightbulb term-icon"></i> Propriedade Intelectual</div>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Após a quitação integral do projeto, você (o cliente) detém todos os direitos sobre o produto final. No entanto, reservo-me o direito de exibir o trabalho em meu portfólio e materiais de marketing, a menos que um acordo de confidencialidade (NDA) seja firmado previamente.</p>
+                    </div>
+                </div>
+                
+                 <div class="accordion-item">
+                    <div class="accordion-header">
+                        <div><i class="fa-solid fa-user-secret term-icon"></i> Confidencialidade</div>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Comprometo-me a manter total confidencialidade sobre todas as informações sensíveis e estratégicas do seu projeto que forem compartilhadas durante o processo de desenvolvimento. Da mesma forma, espero que detalhes técnicos e comerciais do nosso acordo sejam tratados com discrição.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-container">
+                <a href="#" data-target="home-section" class="action-button back-button"><i class="fas fa-arrow-left"></i> Voltar ao Início</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="social-links">
+            <a href="https://discord.com/users/SEU_ID_DISCORD" target="_blank" aria-label="Discord"><i class="fab fa-discord"></i></a>
+            <a href="#" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+            <a href="#" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        </div>
+        <p id="copyright"></p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const preloader = document.getElementById('preloader');
+            const backgroundAudio = document.getElementById('background-audio');
+            const clickSound = document.getElementById('click-sound');
+            const sections = document.querySelectorAll('.content-section');
+            const allButtons = document.querySelectorAll('.action-button');
+
+            // === Funções de Áudio ===
+            let audioPlayed = false;
+            const playAudio = (audioElement) => {
+                if (audioElement) {
+                    audioElement.play().catch(e => console.error("Falha ao tocar áudio:", e));
+                }
+            };
+
+            const handleFirstUserInteraction = () => {
+                if (!audioPlayed) {
+                    playAudio(backgroundAudio);
+                    audioPlayed = true;
+                    document.removeEventListener('click', handleFirstUserInteraction);
+                    document.removeEventListener('keydown', handleFirstUserInteraction);
+                }
+            };
+
+            document.addEventListener('click', handleFirstUserInteraction);
+            document.addEventListener('keydown', handleFirstUserInteraction);
+
+            allButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    playAudio(clickSound);
+                });
+            });
+
+            // === Lógica de Preloader e Carregamento ===
+            const hidePreloader = () => {
+                document.body.classList.add('is-loaded');
+                if (preloader) {
+                    preloader.classList.add('fade-out');
+                    preloader.addEventListener('transitionend', () => preloader.remove());
+                }
+            };
+            
+            window.onload = () => {
+                setTimeout(hidePreloader, 1000); // Garante que a transição ocorra
+            };
+            
+            // Fallback para imagens de perfil
+            document.querySelectorAll('.profile-icon').forEach(icon => {
+                icon.onerror = function() {
+                    this.onerror = null;
+                    const initials = (this.alt || 'RYUH').substring(0, 4).toUpperCase();
+                    this.src = `https://via.placeholder.com/130/00aaff/FFFFFF?text=${initials}`;
+                };
+            });
+
+            // Atualizar ano do rodapé
+            const copyrightEl = document.getElementById('copyright');
+            if (copyrightEl) {
+                copyrightEl.textContent = `© ${new Date().getFullYear()} Ryuh. Todos os direitos reservados.`;
+            }
+
+            // === Lógica de navegação entre seções (SPA) ===
+            document.querySelectorAll('.action-button[data-target]').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const targetId = button.getAttribute('data-target');
+                    const targetSection = document.getElementById(targetId);
+                    const currentSection = document.querySelector('.content-section.active');
+
+                    if (targetSection && currentSection !== targetSection) {
+                        currentSection.style.animation = 'fadeOut 0.25s ease-in-out forwards';
+                        setTimeout(() => {
+                            currentSection.classList.remove('active');
+                            currentSection.style.animation = '';
+                            targetSection.classList.add('active');
+                            targetSection.style.animation = 'fadeIn 0.5s ease-in-out';
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }, 250);
+                    }
+                });
+            });
+
+            // === Lógica avançada do Carrossel ===
+            const carousel = document.querySelector('.carousel-container');
+            if (carousel) {
+                const slide = carousel.querySelector('.carousel-slide');
+                const items = carousel.querySelectorAll('.carousel-item');
+                const dotsContainer = carousel.querySelector('.carousel-dots');
+                let currentIndex = 0;
+                const totalItems = items.length;
+                let autoSlideInterval;
+
+                for (let i = 0; i < totalItems; i++) {
+                    const dot = document.createElement('div');
+                    dot.classList.add('dot');
+                    dot.addEventListener('click', () => { goToSlide(i); resetAutoSlide(); });
+                    dotsContainer.appendChild(dot);
+                }
+                const dots = dotsContainer.querySelectorAll('.dot');
+                
+                const goToSlide = (index) => {
+                    if (index < 0 || index >= totalItems) return;
+                    slide.style.transform = `translateX(-${index * 100}%)`;
+                    dots.forEach(dot => dot.classList.remove('active'));
+                    dots[index].classList.add('active');
+                    currentIndex = index;
+                };
+
+                const nextSlide = () => {
+                    goToSlide((currentIndex + 1) % totalItems);
+                };
+
+                const resetAutoSlide = () => {
+                    clearInterval(autoSlideInterval);
+                    autoSlideInterval = setInterval(nextSlide, 4000);
+                };
+                
+                goToSlide(0);
+                resetAutoSlide();
+            }
+
+            // === Lógica para o Accordion de Termos ===
+            const accordionItems = document.querySelectorAll('.accordion-item');
+            if(accordionItems) {
+                accordionItems.forEach(item => {
+                    const header = item.querySelector('.accordion-header');
+                    header.addEventListener('click', () => {
+                        // Fecha todos os outros itens para manter apenas um aberto
+                        accordionItems.forEach(otherItem => {
+                            if (otherItem !== item) {
+                                otherItem.classList.remove('active');
+                            }
+                        });
+                        
+                        // Alterna a classe 'active' no item clicado
+                        item.classList.toggle('active');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
